@@ -19,46 +19,61 @@ function fetchAndDisplayGif(event) {
     event.preventDefault();
 
     // get the user's input text from the DOM
-    var searchQuery = $("#form-gif-request input").val(); // TODO should be e.g. "dance" DONE
+    //var searchQuery = $("#tag").val(); // TODO should be e.g. "dance" DONE
+    var searchQuery = $("#form-gif-request input").val();
+    var riddleAnswer = $("#riddle").val();
+    console.log("SearchQuery is: " + searchQuery + " and riddleAnswer is: " + riddleAnswer);
+
+
 
     // configure a few parameters to attach to our request
-    var params = {
-        q : "jackson+5+" + searchQuery,
-        api_key: "dc6zaTOxFJmzC",
-        //limit: "1"
-         // TODO should be e.g. "jackson 5 dance"
 
+    var params = {
+        api_key: "dc6zaTOxFJmzC",
+        tag: "Jackson 5 " + searchQuery
+         // TODO should be e.g. "jackson 5 dance"
     };
 
     // make an ajax request for a random GIF
-    $.ajax({
-        url: "http://api.giphy.com/v1/gifs/random", // TODO where should this request be sent?
-        data: params, // attach those extra parameters onto the request
-        success: function(response) {
-            // if the response comes back successfully, the code in here will execute.
+    if (parseInt(riddleAnswer) === 5) {
 
-            // jQuery passes us the `response` variable, a regular javascript object created from the JSON the server gave us
-            console.log("we received a response!");
-            var holder = response;
-            var urlHolder = holder.data.image_url;
-            console.log(holder);
+        $("#capError").text("Loading...");
 
-            console.log(urlHolder);
-            $("#gif").attr("src", urlHolder);
-            setGifLoadedStatus(true);
+        $.ajax({
+            dataType: 'jsonp',
+            url: "http://api.giphy.com/v1/gifs/random", // TODO where should this request be sent?
+            data: params, // attach those extra parameters onto the request
+            success: function(response) {
+                // if the response comes back successfully, the code in here will execute.
 
-            // TODO
-            // 1. set the source attribute of our image to the image_url of the GIF
-            // 2. hide the feedback message and display the image
-        },
-        error: function() {
-            // if something went wrong, the code in here will execute instead of the success function
+                // jQuery passes us the `response` variable, a regular javascript object created from the JSON the server gave us
+                $("#capError").text("");
+                console.log("we received a response!");
+                var holder = response;
+                var urlHolder = holder.data.image_url;
+                console.log(urlHolder);
+                console.log("The riddle answer is: " + riddleAnswer);
 
-            // give the user an error message
-            $("#feedback").text("Sorry, could not load GIF. Try again!");
-            setGifLoadedStatus(false);
-        }
-    });
+                //console.log(urlHolder);
+                $("#gif").attr("src", urlHolder);
+                setGifLoadedStatus(true);
+
+                // TODO
+                // 1. set the source attribute of our image to the image_url of the GIF
+                // 2. hide the feedback message and display the image
+            },
+            error: function() {
+                // if something went wrong, the code in here will execute instead of the success function
+
+                // give the user an error message
+                $("#feedback").text("Sorry, could not load GIF. Try again!");
+                setGifLoadedStatus(false);
+            }
+        });
+    } else {
+        $("#capError").text("No gifs for you!");
+        setGifLoadedStatus(false);
+    }
 
     // TODO
     // give the user a "Loading..." message while they wait
